@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager 2025</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.2/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .task-card {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .hidden {
+            display: none;
+        }
+        select, input, button {
+            margin: 5px;
+            padding: 10px;
+        }
+        .btn {
+            background: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+		
+		
+		 .hidden {
+            display: none;
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Marketing Task Manger</h1>
+	 <input type="text" id="requester" placeholder="Requester name">
+	<input type="text" id="emailid" placeholder="Requester Email ID">
+	<input type="text" id="taskname" placeholder="Campaign | Task Name">
+	<input type="text" id="description" placeholder="Camapign Description">
+	
+	<select id="poc">
+		 <option value="" disabled selected>Purpose of cmapaign</option>
+        <option value="webinar">Webinar</option>
+        <option value="event">Event</option>
+        <option value="salesupport">Sale support</option>
+        <option value="Websupport">Web support</option>
+    </select>
+	
+	<input type="text" id="materials" placeholder="Required Materials">
+	<div class="form-group">
+	<label>Are you shared detailed information to the Marketing team?</label>
+        <input type="radio" name="marketingInfo" value="yes" id="yesOption"> Yes
+        <input type="radio" name="marketingInfo" value="no" id="noOption"> No
+	</div>
+	<div class="form-group hidden" id="requestCallDiv">
+        <input type="text" id="requestCall" placeholder="Request Connect Call">
+    </div>
+    <select id="country">
+		 <option value="" disabled selected>Select Country</option>
+        <option value="India">India</option>
+        <option value="Sri Lanka">Sri Lanka</option>
+        <option value="UAE">UAE</option>
+        <option value="Global">Global</option>
+    </select>
+    <input type="date" id="deadline">
+    <button class="btn" onclick="addTask()">Add Task</button>
+
+    <h3>Filter by Country:</h3>
+    <select id="filterCountry" onchange="filterTasks()">
+        <option value="All">All</option>
+        <option value="India">India</option>
+        <option value="Sri Lanka">Sri Lanka</option>
+        <option value="UAE">UAE</option>
+        <option value="Global">Global</option>
+    </select>
+
+    <h3>Filter by Status:</h3>
+    <select id="filterStatus" onchange="filterTasks()">
+        <option value="All">All</option>
+        <option value="Opened">Opened</option>
+        <option value="Completed">Completed</option>
+    </select>
+
+    <button class="btn" onclick="downloadExcel()">Download Excel</button>
+
+    <div id="taskList"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_uO4Si54UULuKn-mFksdv5NJoML8nJvM",
+        authDomain: "task-manager-a4891.firebaseapp.com",
+        projectId: "task-manager-a4891",
+        storageBucket: "task-manager-a4891.firebasestorage.app",
+        messagingSenderId: "31224766915",
+        appId: "1:31224766915:web:03724e3ee0d8a0968d1d76"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let taskData = [];
+    
+    document.addEventListener("DOMContentLoaded", function () {
+        emailjs.init("wKKO8C-VDRSJKZzOB");
+        loadTasks();
+    });
+    
+    async function loadTasks() {
+        const tasksRef = collection(db, "tasks");
+        onSnapshot(tasksRef, (snapshot) => {
+            taskData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            displayTasks(taskData);
+        });
+    }
+
+    async function addTask() {
+        let requester = document.getElementById("requester").value;
+        let emailId = document.getElementById("emailid").value;
+        let taskName = document.getElementById("taskname").value;
+        let description = document.getElementById("description").value;
+        let poc = document.getElementById("poc").value;
+        let materials = document.getElementById("materials").value;
+        let country = document.getElementById("country").value;
+        let deadline = document.getElementById("deadline").value;
+
+        if (!requester || !emailId || !taskName || !description || !deadline) {
+            alert("Please fill in all required fields!");
+            return;
+        }
+
+        let newTask = {
+            requester, emailId, taskName, description, poc, materials, country, deadline,
+            status: "Opened", notes: []
+        };
+
+        try {
+            await addDoc(collection(db, "tasks"), newTask);
+            sendEmail(newTask);
+        } catch (error) {
+            console.error("Error adding task:", error);
+        }
+    }
+
+    function sendEmail(task) {
+        emailjs.send("service_zcxkszh", "template_mgi90vp", task).then(
+            () => alert("Task added and email notification sent!"),
+            () => alert("Task added, but email could not be sent.")
+        );
+    }
+
+    function displayTasks(tasks) {
+        let taskList = document.getElementById("taskList");
+        taskList.innerHTML = "";
+        tasks.forEach(task => {
+            let taskCard = document.createElement("div");
+            taskCard.className = "task-card";
+            taskCard.innerHTML = `
+                <strong>Task Name:</strong> ${task.taskName}<br>
+                <strong>POC:</strong> ${task.poc}<br>
+                <strong>Country:</strong> ${task.country}<br>
+                <strong>Description:</strong> ${task.description}<br>
+                <strong>Materials:</strong> ${task.materials}<br>
+                <strong>Deadline:</strong> ${task.deadline}<br>
+                <strong>Requester Name:</strong> ${task.requester}<br>
+                <select onchange="updateStatus('${task.id}', this.value)">
+                    <option value="Opened" ${task.status === "Opened" ? "selected" : ""}>Opened</option>
+                    <option value="Completed" ${task.status === "Completed" ? "selected" : ""}>Completed</option>
+                </select>
+                <button onclick="deleteTask('${task.id}')">Delete</button>
+                <button onclick="addNote('${task.id}')">Add Note</button>
+                <button onclick="toggleNotes('${task.id}')">Show Notes</button>
+                <div id="notes-${task.id}" class="hidden"></div>
+            `;
+            taskList.appendChild(taskCard);
+            updateNotesDisplay(task.id, task.notes);
+        });
+    }
+
+    async function updateStatus(id, newStatus) {
+        await updateDoc(doc(db, "tasks", id), { status: newStatus });
+    }
+
+    async function deleteTask(id) {
+        await deleteDoc(doc(db, "tasks", id));
+    }
+
+    async function addNote(id) {
+        let noteText = prompt("Enter note:");
+        if (noteText) {
+            await updateDoc(doc(db, "tasks", id), {
+                notes: arrayUnion({ text: noteText, date: new Date().toLocaleString() })
+            });
+        }
+    }
+
+    function toggleNotes(id) {
+        document.getElementById("notes-" + id).classList.toggle("hidden");
+    }
+
+    function updateNotesDisplay(id, notes) {
+        let notesDiv = document.getElementById("notes-" + id);
+        if (notesDiv) {
+            notesDiv.innerHTML = notes.map(n => `<p>${n.date}: ${n.text}</p>`).join("");
+        }
+    }
+    
+    function downloadExcel() {
+        let ws = XLSX.utils.json_to_sheet(taskData);
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Tasks");
+        XLSX.writeFile(wb, "Tasks.xlsx");
+    }
+
+    window.addTask = addTask;
+    window.updateStatus = updateStatus;
+    window.deleteTask = deleteTask;
+    window.addNote = addNote;
+    window.toggleNotes = toggleNotes;
+    window.downloadExcel = downloadExcel;
+</script>
+
+
+
+
+
+
+
+
+
+</body>
+</html>
