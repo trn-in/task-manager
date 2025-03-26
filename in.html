@@ -165,20 +165,20 @@
 	<input type="text" id="emailid" placeholder="Requester Email ID">
 	<select id="product">
 		 <option value="" disabled selected>Select product</option>
-        <option value="AWS">AWS</option>
-        <option value="Microsoft">Microsoft</option>
-        <option value="Google cloud">Google cloud</option>
-        <option value="Splunk">Splunk</option>
-		<option value="Palo Alto">Palo Alto</option>
-        <option value="ISACA">ISACA</option>
-        <option value="EC Council">EC Council</option>
-        <option value="Data Brick">Data Brick</option>
-		 <option value="Trend micro">Trend micro</option>
-        <option value="Netapp">Netapp</option>
-        <option value="Nutanix">Nutanix</option>
-		 <option value="Special Projects">Special Projects</option>
-        <option value="Others">Others</option>
-        
+        <option value="India">AWS</option>
+        <option value="Sri Lanka">Microsoft</option>
+        <option value="UAE">Google cloud</option>
+        <option value="Global">Splunk</option>
+		<option value="India">Palo ALtp</option>
+        <option value="Sri Lanka">ISACA</option>
+        <option value="UAE">EC Council</option>
+        <option value="Global">Data Brick</option>
+		 <option value="Sri Lanka">Trend micro</option>
+        <option value="UAE">Netapp</option>
+        <option value="Global">Nutanix</option>
+		 <option value="Sri Lanka">Special Projects </option>
+        <option value="UAE">Others</option>
+        <option value="Global">Nutanix</option>
     </select>
 	<input type="text" id="taskname" placeholder="Campaign | Task Name">
 	<input type="text" id="description" placeholder="Camapign Description">
@@ -187,13 +187,14 @@
 		 <option value="" disabled selected>Purpose of campaign</option>
         <option value="webinar">Webinar</option>
         <option value="event">Event</option>
-        <option value="sales support">Sales support</option>
+        <option value="salesupport">Sale support</option>
         <option value="Websupport">Web support</option>
-		    <option value="psp">Public Schedule Promotions</option>
-        <option value="News and Announcements">News and Announcements</option>
-		  <option value="Blog">Blog</option>
-        <option value="Giveaway">Giveaway</option>
-		    <option value="SEO">SEO</option>
+		    <option value="salesupport">Public Schedule Promotions</option>
+        <option value="Websupport">News annoncement</option>
+		  <option value="salesupport">Blog</option>
+        <option value="Websupport">Giveaway</option>
+		    <option value="salesupport">SEO</option>
+        <option value="Websupport">News annoncement</option>
     </select>
 	
 	<select id="request">
@@ -340,37 +341,76 @@
     );
 }
 
-    function displayTasks(tasks) {
-        let taskList = document.getElementById("taskList");
-        taskList.innerHTML = "";
-        tasks.forEach(task => {
-            let taskCard = document.createElement("div");
-            taskCard.className = "task-card";
-            taskCard.innerHTML = `
-                <strong>Task Name:</strong> ${task.taskName} | <strong>Assigned to:</strong> ${task.person} |
-                <strong>POC:</strong> ${task.poc} | 
-                <strong>Country:</strong> ${task.country}<br>
-                 <strong>Request:</strong> ${task.request} |
-                <strong>Materials:</strong> ${task.materials} | 
-                <strong>Deadline:</strong> ${task.deadline} | 
-                <strong>Requester Name:</strong> ${task.requester}<br>
-<strong>Description:</strong> ${task.description}<br>
-                <select onchange="updateStatus('${task.id}', this.value)">
-                    <option value="Opened" ${task.status === "Opened" ? "selected" : ""}>Opened</option>
-                    <option value="Working" ${task.status === "Working" ? "selected" : ""}>Working</option>
-<option value="Hold" ${task.status === "Hold" ? "selected" : ""}>Hold</option>
-<option value="Approval Pending" ${task.status === "Approval Pending" ? "selected" : ""}>Approval Pending</option>
-<option value="Completed" ${task.status === "Completed" ? "selected" : ""}>Completed</option>
-                </select>
-                <button onclick="deleteTask('${task.id}')">Delete</button>
-                <button onclick="addNote('${task.id}')">Add Note</button>
-                <button onclick="toggleNotes('${task.id}')">Show Notes</button>
-                <div id="notes-${task.id}" class="hidden"></div>
-            `;
-            taskList.appendChild(taskCard);
-            updateNotesDisplay(task.id, task.notes);
-        });
+   function displayTasks(tasks) {
+    let taskList = document.getElementById("taskList");
+    taskList.innerHTML = "";
+    tasks.forEach(task => {
+        let taskCard = document.createElement("div");
+        taskCard.className = "task-card";
+        taskCard.innerHTML = `
+            <strong>Task Name:</strong> ${task.taskName} | <strong>Assigned to:</strong> ${task.person} |
+            <strong>POC:</strong> ${task.poc} | 
+            <strong>Country:</strong> ${task.country}<br>
+            <strong>Request:</strong> ${task.request} |
+            <strong>Materials:</strong> ${task.materials} | 
+            <strong>Deadline:</strong> ${task.deadline} | 
+            <strong>Requester Name:</strong> ${task.requester}<br>
+            <strong>Description:</strong> ${task.description}<br>
+            <select onchange="updateStatus('${task.id}', this.value)">
+                <option value="Opened" ${task.status === "Opened" ? "selected" : ""}>Opened</option>
+                <option value="Working" ${task.status === "Working" ? "selected" : ""}>Working</option>
+                <option value="Hold" ${task.status === "Hold" ? "selected" : ""}>Hold</option>
+                <option value="Approval Pending" ${task.status === "Approval Pending" ? "selected" : ""}>Approval Pending</option>
+                <option value="Completed" ${task.status === "Completed" ? "selected" : ""}>Completed</option>
+            </select>
+            <button onclick="editTask('${task.id}')">Edit</button>
+            <button onclick="deleteTask('${task.id}')">Delete</button>
+            <button onclick="addNote('${task.id}')">Add Note</button>
+            <button onclick="toggleNotes('${task.id}')">Show Notes</button>
+            <div id="notes-${task.id}" class="hidden"></div>
+        `;
+        taskList.appendChild(taskCard);
+        updateNotesDisplay(task.id, task.notes);
+    });
+}
+
+	async function editTask(taskId) {
+    let task = taskData.find(t => t.id === taskId);
+    if (!task) return;
+
+    let newTaskName = prompt("Edit Task Name:", task.taskName);
+    let newDescription = prompt("Edit Description:", task.description);
+    let newPOC = prompt("Edit POC:", task.poc);
+    let newMaterials = prompt("Edit Materials:", task.materials);
+    let newCountry = prompt("Edit Country:", task.country);
+    let newDeadline = prompt("Edit Deadline:", task.deadline);
+    let newRequester = prompt("Edit Requester Name:", task.requester);
+    let newPerson = prompt("Edit Assigned Person:", task.person);
+    let newRequest = prompt("Edit Request:", task.request);
+
+    if (!newTaskName || !newDescription) {
+        alert("Task name and description are required!");
+        return;
     }
+
+    try {
+        await updateDoc(doc(db, "tasks", taskId), {
+            taskName: newTaskName,
+            description: newDescription,
+            poc: newPOC,
+            materials: newMaterials,
+            country: newCountry,
+            deadline: newDeadline,
+            requester: newRequester,
+            person: newPerson,
+            request: newRequest
+        });
+        alert("Task updated successfully!");
+    } catch (error) {
+        console.error("Error updating task:", error);
+    }
+}
+
 
     async function updateStatus(id, newStatus) {
         await updateDoc(doc(db, "tasks", id), { status: newStatus });
@@ -388,24 +428,47 @@
 }
 
     async function addNote(id) {
-        let noteText = prompt("Enter note:");
-        if (noteText) {
-            await updateDoc(doc(db, "tasks", id), {
-                notes: arrayUnion({ text: noteText, date: new Date().toLocaleString() })
-            });
-        }
+    let noteName = prompt("Enter your name:");
+    if (!noteName) {
+        alert("Name is required!");
+        return;
     }
+
+    let noteText = prompt("Enter note:");
+    if (!noteText) {
+        alert("Note cannot be empty!");
+        return;
+    }
+
+    let noteEntry = {
+        name: noteName,
+        text: noteText,
+        date: new Date().toLocaleString()
+    };
+
+    try {
+        await updateDoc(doc(db, "tasks", id), {
+            notes: arrayUnion(noteEntry)
+        });
+        alert("Note added successfully!");
+    } catch (error) {
+        console.error("Error adding note:", error);
+    }
+}
 
     function toggleNotes(id) {
         document.getElementById("notes-" + id).classList.toggle("hidden");
     }
 
     function updateNotesDisplay(id, notes) {
-        let notesDiv = document.getElementById("notes-" + id);
-        if (notesDiv) {
-            notesDiv.innerHTML = notes.map(n => `<p>${n.date}: ${n.text}</p>`).join("");
-        }
+    let notesDiv = document.getElementById("notes-" + id);
+    if (notesDiv) {
+        notesDiv.innerHTML = notes
+            .map(n => `<p><strong>${n.name}</strong> (${n.date}): ${n.text}</p>`)
+            .join("");
     }
+}
+
 
     function downloadExcel() {
         let ws = XLSX.utils.json_to_sheet(taskData);
@@ -437,6 +500,7 @@
     window.toggleNotes = toggleNotes;
     window.downloadExcel = downloadExcel;
     window.filterTasks = filterTasks;
+	window.editTask = editTask;
 </script>
 
 
