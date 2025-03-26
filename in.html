@@ -184,7 +184,7 @@
 	<input type="text" id="description" placeholder="Camapign Description">
 	
 	<select id="poc">
-		 <option value="" disabled selected>Purpose of cmapaign</option>
+		 <option value="" disabled selected>Purpose of campaign</option>
         <option value="webinar">Webinar</option>
         <option value="event">Event</option>
         <option value="salesupport">Sale support</option>
@@ -197,6 +197,11 @@
         <option value="Websupport">News annoncement</option>
     </select>
 	
+	<select id="request">
+		<option value="" disabled selected>Request for</option>
+		<option value="Artwork">Artwork</option>
+    <option value="Support">Support Work</option>
+    </select>
 	<input type="text" id="materials" placeholder="Required Materials">
 	
 	
@@ -291,6 +296,7 @@
         let country = document.getElementById("country").value;
         let deadline = document.getElementById("deadline").value;
 		let person = document.getElementById("person").value;
+		let request = document.getElementById("request").value;
 
         if (!requester || !emailId || !taskName || !description || !deadline) {
             alert("Please fill in all required fields!");
@@ -298,7 +304,7 @@
         }
 
         let newTask = {
-            requester, emailId, taskName, description, poc, materials, country, deadline, person,
+            requester, emailId, taskName, description, poc, materials, country, deadline, person, request,
             status: "Opened", notes: []
         };
 
@@ -314,13 +320,14 @@
     emailjs.send("service_1162qhl", "template_mgi90vp", {
         task_name: task.taskName,
         task_description: task.description,
+		task_request: task.request,
         task_materials: task.materials,
         task_country: task.country,
         task_deadline: task.deadline,
 		task_poc: task.poc,
 		task_requester: task.requester,
 		task_emailId: task.emailId,
-		task_requestCall: task.requestCall,
+		task_person: task.person,
 		
     }).then(
         function (response) {
@@ -344,7 +351,7 @@
                 <strong>Task Name:</strong> ${task.taskName} | <strong>Assigned to:</strong> ${task.person} |
                 <strong>POC:</strong> ${task.poc} | 
                 <strong>Country:</strong> ${task.country}<br>
-                
+                 <strong>Request:</strong> ${task.request} |
                 <strong>Materials:</strong> ${task.materials} | 
                 <strong>Deadline:</strong> ${task.deadline} | 
                 <strong>Requester Name:</strong> ${task.requester}<br>
