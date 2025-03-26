@@ -376,9 +376,16 @@
         await updateDoc(doc(db, "tasks", id), { status: newStatus });
     }
 
-    async function deleteTask(id) {
-        await deleteDoc(doc(db, "tasks", id));
+    async function deleteTask(taskId) {
+    if (confirm("Are you sure you want to delete this task?")) {
+        try {
+            await deleteDoc(doc(db, "tasks", taskId));
+            alert("Task deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting task:", error);
+        }
     }
+}
 
     async function addNote(id) {
         let noteText = prompt("Enter note:");
