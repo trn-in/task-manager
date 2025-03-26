@@ -40,15 +40,146 @@
 		
 		
 		 .hidden {
-            display: none;
+			 display: none;}
+		
+		   #taskList {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .task-card {
+		color: #000000;
+        background-color: #ffffff;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+        border-left: 5px solid #4CAF50;
+    }
+
+    .task-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .task-card strong {
+        display: inline-block;
+        margin-bottom: 4px;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .task-card select,
+    .task-card button {
+        margin-top: 8px;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    .task-card select {
+        background-color: #f0f0f0;
+        color: #333;
+    }
+
+    .task-card button {
+        background-color: #4CAF50;
+        color: #fff;
+        margin-right: 5px;
+    }
+
+    .task-card button:hover {
+        background-color: #45a049;
+    }
+
+    .task-card button.delete {
+        background-color: #f44336;
+    }
+
+    .task-card button.delete:hover {
+        background-color: #e53935;
+    }
+
+    .task-card button.toggle-notes {
+        background-color: #2196F3;
+    }
+
+    .task-card button.toggle-notes:hover {
+        background-color: #1e88e5;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    #filterContainer {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
+
+    #filterContainer select {
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        outline: none;
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+
+    #downloadBtn {
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    #downloadBtn:hover {
+        background-color: #45a049;
+    }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Marketing Task Manger</h1>
+	 <select id="country">
+		 <option value="" disabled selected>Select Country</option>
+        <option value="India">India</option>
+        <option value="Sri Lanka">Sri Lanka</option>
+        <option value="UAE">UAE</option>
+        <option value="Global">Global</option>
+    </select>
+	
 	 <input type="text" id="requester" placeholder="Requester name">
 	<input type="text" id="emailid" placeholder="Requester Email ID">
+	<select id="product">
+		 <option value="" disabled selected>Select product</option>
+        <option value="India">AWS</option>
+        <option value="Sri Lanka">Microsoft</option>
+        <option value="UAE">Google cloud</option>
+        <option value="Global">Splunk</option>
+		<option value="India">Palo ALtp</option>
+        <option value="Sri Lanka">ISACA</option>
+        <option value="UAE">EC Council</option>
+        <option value="Global">Data Brick</option>
+		 <option value="Sri Lanka">Trend micro</option>
+        <option value="UAE">Netapp</option>
+        <option value="Global">Nutanix</option>
+		 <option value="Sri Lanka">Special Projects </option>
+        <option value="UAE">Others</option>
+        <option value="Global">Nutanix</option>
+    </select>
 	<input type="text" id="taskname" placeholder="Campaign | Task Name">
 	<input type="text" id="description" placeholder="Camapign Description">
 	
@@ -58,27 +189,32 @@
         <option value="event">Event</option>
         <option value="salesupport">Sale support</option>
         <option value="Websupport">Web support</option>
+		    <option value="salesupport">Public Schedule Promotions</option>
+        <option value="Websupport">News annoncement</option>
+		  <option value="salesupport">Blog</option>
+        <option value="Websupport">Giveaway</option>
+		    <option value="salesupport">SEO</option>
+        <option value="Websupport">News annoncement</option>
     </select>
 	
 	<input type="text" id="materials" placeholder="Required Materials">
-	<div class="form-group">
-	<label>Are you shared detailed information to the Marketing team?</label>
-        <input type="radio" name="marketingInfo" value="yes" id="yesOption"> Yes
-        <input type="radio" name="marketingInfo" value="no" id="noOption"> No
-	</div>
-	<div class="form-group hidden" id="requestCallDiv">
-        <input type="text" id="requestCall" placeholder="Request Connect Call">
-    </div>
-    <select id="country">
-		 <option value="" disabled selected>Select Country</option>
-        <option value="India">India</option>
-        <option value="Sri Lanka">Sri Lanka</option>
-        <option value="UAE">UAE</option>
-        <option value="Global">Global</option>
+	
+	
+	<select id="person">
+		<option value="" disabled selected>Assigned to</option>
+		<option value="Jabez">Jabez</option>
+    <option value="Raghul">Raghul</option>
+    <option value="Raj kumar">Raj kumar</option>
+    <option value="Bettina">Bettina</option>
+    <option value="Saswatha">Saswatha</option>
+    <option value="Robin">Robin</option>
+    <option value="Mariya">Mariya</option>
     </select>
+	
+   
     <input type="date" id="deadline">
     <button class="btn" onclick="addTask()">Add Task</button>
-
+	
     <h3>Filter by Country:</h3>
     <select id="filterCountry" onchange="filterTasks()">
         <option value="All">All</option>
@@ -90,11 +226,26 @@
 
     <h3>Filter by Status:</h3>
     <select id="filterStatus" onchange="filterTasks()">
-        <option value="All">All</option>
+        <option value="All">all</option>
         <option value="Opened">Opened</option>
+		<option value="Working">Working</option>
+		<option value="Hold">Hold</option>
+		<option value="Approval Pending">Approval Pending</option>
         <option value="Completed">Completed</option>
     </select>
 
+	
+	<h3>Filter by Person:</h3>
+<select id="filterPerson" onchange="filterTasks()">
+    <option value="All">All</option>
+    <option value="Jabez">Jabez</option>
+    <option value="Raghul">Raghul</option>
+    <option value="Raj kumar">Raj kumar</option>
+    <option value="Bettina">Bettina</option>
+    <option value="Saswatha">Saswatha</option>
+    <option value="Robin">Robin</option>
+    <option value="Mariya">Mariya</option>
+</select>
     <button class="btn" onclick="downloadExcel()">Download Excel</button>
 
     <div id="taskList"></div>
@@ -139,6 +290,7 @@
         let materials = document.getElementById("materials").value;
         let country = document.getElementById("country").value;
         let deadline = document.getElementById("deadline").value;
+		let person = document.getElementById("person").value;
 
         if (!requester || !emailId || !taskName || !description || !deadline) {
             alert("Please fill in all required fields!");
@@ -146,7 +298,7 @@
         }
 
         let newTask = {
-            requester, emailId, taskName, description, poc, materials, country, deadline,
+            requester, emailId, taskName, description, poc, materials, country, deadline, person,
             status: "Opened", notes: []
         };
 
@@ -158,12 +310,29 @@
         }
     }
 
-    function sendEmail(task) {
-        emailjs.send("service_zcxkszh", "template_mgi90vp", task).then(
-            () => alert("Task added and email notification sent!"),
-            () => alert("Task added, but email could not be sent.")
-        );
-    }
+     function sendEmail(task) {
+    emailjs.send("service_1162qhl", "template_mgi90vp", {
+        task_name: task.taskName,
+        task_description: task.description,
+        task_materials: task.materials,
+        task_country: task.country,
+        task_deadline: task.deadline,
+		task_poc: task.poc,
+		task_requester: task.requester,
+		task_emailId: task.emailId,
+		task_requestCall: task.requestCall,
+		
+    }).then(
+        function (response) {
+            console.log("Email sent successfully!", response);
+            alert("Task added and email notification sent!");
+        },
+        function (error) {
+            console.log("Email failed to send:", error);
+            alert("Task added, but email could not be sent.");
+        }
+    );
+}
 
     function displayTasks(tasks) {
         let taskList = document.getElementById("taskList");
@@ -172,16 +341,20 @@
             let taskCard = document.createElement("div");
             taskCard.className = "task-card";
             taskCard.innerHTML = `
-                <strong>Task Name:</strong> ${task.taskName}<br>
-                <strong>POC:</strong> ${task.poc}<br>
+                <strong>Task Name:</strong> ${task.taskName} | <strong>Assigned to:</strong> ${task.person} |
+                <strong>POC:</strong> ${task.poc} | 
                 <strong>Country:</strong> ${task.country}<br>
-                <strong>Description:</strong> ${task.description}<br>
-                <strong>Materials:</strong> ${task.materials}<br>
-                <strong>Deadline:</strong> ${task.deadline}<br>
+                
+                <strong>Materials:</strong> ${task.materials} | 
+                <strong>Deadline:</strong> ${task.deadline} | 
                 <strong>Requester Name:</strong> ${task.requester}<br>
+<strong>Description:</strong> ${task.description}<br>
                 <select onchange="updateStatus('${task.id}', this.value)">
                     <option value="Opened" ${task.status === "Opened" ? "selected" : ""}>Opened</option>
-                    <option value="Completed" ${task.status === "Completed" ? "selected" : ""}>Completed</option>
+                    <option value="Working" ${task.status === "Working" ? "selected" : ""}>Working</option>
+<option value="Hold" ${task.status === "Hold" ? "selected" : ""}>Hold</option>
+<option value="Approval Pending" ${task.status === "Approval Pending" ? "selected" : ""}>Approval Pending</option>
+<option value="Completed" ${task.status === "Completed" ? "selected" : ""}>Completed</option>
                 </select>
                 <button onclick="deleteTask('${task.id}')">Delete</button>
                 <button onclick="addNote('${task.id}')">Add Note</button>
@@ -220,7 +393,7 @@
             notesDiv.innerHTML = notes.map(n => `<p>${n.date}: ${n.text}</p>`).join("");
         }
     }
-    
+
     function downloadExcel() {
         let ws = XLSX.utils.json_to_sheet(taskData);
         let wb = XLSX.utils.book_new();
@@ -228,13 +401,31 @@
         XLSX.writeFile(wb, "Tasks.xlsx");
     }
 
+    // ✅ Fixed filterTasks function
+    function filterTasks() {
+    let selectedCountry = document.getElementById("filterCountry").value;
+    let selectedStatus = document.getElementById("filterStatus").value;
+    let selectedPerson = document.getElementById("filterPerson").value;
+
+    let filtered = taskData.filter(task =>
+        (selectedCountry === "All" || task.country === selectedCountry) &&
+        (selectedStatus === "All" || task.status === selectedStatus) &&
+        (selectedPerson === "All" || task.person === selectedPerson)
+    );
+
+    displayTasks(filtered);
+}
+
+    // ✅ Exposing functions to window
     window.addTask = addTask;
     window.updateStatus = updateStatus;
     window.deleteTask = deleteTask;
     window.addNote = addNote;
     window.toggleNotes = toggleNotes;
     window.downloadExcel = downloadExcel;
+    window.filterTasks = filterTasks;
 </script>
+
 
 
 
