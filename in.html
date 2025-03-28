@@ -6,6 +6,9 @@
     <title>Task Manager 2025</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.2/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -152,7 +155,7 @@
 <body>
 
 <div class="container">
-    <h1>Marketing Task Manger</h1>
+    <h1>Marketing Task Manager</h1>
 	 <select id="country">
 		 <option value="" disabled selected>Select Country</option>
         <option value="India">India</option>
@@ -201,26 +204,15 @@
 		<option value="" disabled selected>Request for</option>
 		<option value="Artwork">Artwork</option>
     <option value="Support Works">Support Work</option>
+		<option value="Digital Makerting">Digital Makerting</option>
     </select>
 	<input type="text" id="materials" placeholder="Required Materials">
 	
 	
-	<select id="person">
-		<option value="" disabled selected>Assigned to</option>
-		<option value="Jabez">Jabez</option>
-    <option value="Raghul">Raghul</option>
-    <option value="Raj kumar">Raj kumar</option>
-    <option value="Bettina">Bettina</option>
-    <option value="Saswatha">Saswatha</option>
-    <option value="Robin">Robin</option>
-    <option value="Mariya">Mariya</option>
-    </select>
-	
-   
-    <input type="date" id="deadline">
+  <input type="date" id="deadline">
     <button class="btn" onclick="addTask()">Add Task</button>
 	
-    <h3>Filter by Country:</h3>
+  <h3>Filter by Country:</h3>
     <select id="filterCountry" onchange="filterTasks()">
         <option value="All">All</option>
         <option value="India">India</option>
@@ -240,7 +232,7 @@
     </select>
 
 	
-	<h3>Filter by Person:</h3>
+  <h3>Filter by Person:</h3>
 <select id="filterPerson" onchange="filterTasks()">
     <option value="All">All</option>
     <option value="Jabez">Jabez</option>
@@ -251,257 +243,370 @@
     <option value="Robin">Robin</option>
     <option value="Mariya">Mariya</option>
 </select>
-    <button class="btn" onclick="downloadExcel()">Download Excel</button>
+  <button class="btn" onclick="downloadExcel()">Download Excel</button>
 
     <div id="taskList"></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    
-    const firebaseConfig = {
-        apiKey: "AIzaSyA_uO4Si54UULuKn-mFksdv5NJoML8nJvM",
-        authDomain: "task-manager-a4891.firebaseapp.com",
-        projectId: "task-manager-a4891",
-        storageBucket: "task-manager-a4891.firebasestorage.app",
-        messagingSenderId: "31224766915",
-        appId: "1:31224766915:web:03724e3ee0d8a0968d1d76"
-    };
+		
+		
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+		import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    let taskData = [];
-    
-    document.addEventListener("DOMContentLoaded", function () {
-        emailjs.init("wKKO8C-VDRSJKZzOB");
-        loadTasks();
-    });
-    
-    async function loadTasks() {
-        const tasksRef = collection(db, "tasks");
-        onSnapshot(tasksRef, (snapshot) => {
-            taskData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            displayTasks(taskData);
-        });
-    }
+		const firebaseConfig = {
+			apiKey: "AIzaSyA_uO4Si54UULuKn-mFksdv5NJoML8nJvM",
+			authDomain: "task-manager-a4891.firebaseapp.com",
+			projectId: "task-manager-a4891",
+			storageBucket: "task-manager-a4891.firebasestorage.app",
+			messagingSenderId: "31224766915",
+			appId: "1:31224766915:web:03724e3ee0d8a0968d1d76"
+		};
 
-    async function addTask() {
-        let requester = document.getElementById("requester").value;
-        let emailId = document.getElementById("emailid").value;
-        let taskName = document.getElementById("taskname").value;
-        let description = document.getElementById("description").value;
-        let poc = document.getElementById("poc").value;
-        let materials = document.getElementById("materials").value;
-        let country = document.getElementById("country").value;
-        let deadline = document.getElementById("deadline").value;
-		let person = document.getElementById("person").value;
-		let request = document.getElementById("request").value;
+		const app = initializeApp(firebaseConfig);
+		const db = getFirestore(app);
+		let taskData = [];
 
-        if (!requester || !emailId || !taskName || !description || !deadline) {
-            alert("Please fill in all required fields!");
+		document.addEventListener("DOMContentLoaded", function () {
+			emailjs.init("wKKO8C-VDRSJKZzOB");
+			loadTasks();
+		});
+
+		async function loadTasks() {
+			const tasksRef = collection(db, "tasks");
+			onSnapshot(tasksRef, (snapshot) => {
+				taskData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+				displayTasks(taskData);
+			});
+		}
+
+		async function addTask() {
+			let requester = document.getElementById("requester").value;
+			let emailId = document.getElementById("emailid").value;
+			let taskName = document.getElementById("taskname").value;
+			let description = document.getElementById("description").value;
+			let poc = document.getElementById("poc").value;
+			let materials = document.getElementById("materials").value;
+			let country = document.getElementById("country").value;
+			let deadline = document.getElementById("deadline").value;
+			let request = document.getElementById("request").value;
+
+			if (!requester || !emailId || !taskName || !description || !deadline) {
+				alert("Please fill in all required fields!");
+				return;
+			}
+
+			let newTask = {
+				requester, emailId, taskName, description, poc, materials, country, deadline,  request,
+				status: "Opened", notes: []
+			};
+
+			try {
+				await addDoc(collection(db, "tasks"), newTask);
+				sendEmail(newTask);
+			} catch (error) {
+				console.error("Error adding task:", error);
+			}
+		}
+
+		 function sendEmail(task) {
+		emailjs.send("service_1162qhl", "template_mgi90vp", {
+			task_name: task.taskName,
+			task_description: task.description,
+			task_request: task.request,
+			task_materials: task.materials,
+			task_country: task.country,
+			task_deadline: task.deadline,
+			task_poc: task.poc,
+			task_requester: task.requester,
+			task_emailId: task.emailId,
+			
+
+		}).then(
+			function (response) {
+				console.log("Email sent successfully!", response);
+				alert("Task added and email notification sent!");
+			},
+			function (error) {
+				console.log("Email failed to send:", error);
+				alert("Task added, but email could not be sent.");
+			}
+		);
+	}
+
+	   function displayTasks(tasks) {
+		let taskList = document.getElementById("taskList");
+		taskList.innerHTML = "";
+		   tasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+		tasks.forEach(task => {
+			let taskCard = document.createElement("div");
+			taskCard.className = "task-card";
+			taskCard.innerHTML = `
+				<strong>Task Name:</strong> ${task.taskName} | <strong>Assigned to:</strong> ${task.person} |
+				<strong>POC:</strong> ${task.poc} | 
+				<strong>Country:</strong> ${task.country}<br>
+				<strong>Request:</strong> ${task.request} |
+				<strong>Materials:</strong> ${task.materials} | 
+				<strong>Deadline:</strong> ${task.deadline} | 
+				<strong>Requester Name:</strong> ${task.requester}<br>
+				<strong>Description:</strong> ${task.description}<br>
+				<select onchange="updateStatus('${task.id}', this.value)">
+					<option value="Opened" ${task.status === "Opened" ? "selected" : ""}>Opened</option>
+					<option value="Working" ${task.status === "Working" ? "selected" : ""}>Working</option>
+					<option value="Hold" ${task.status === "Hold" ? "selected" : ""}>Hold</option>
+					<option value="Approval Pending" ${task.status === "Approval Pending" ? "selected" : ""}>Approval Pending</option>
+					<option value="Completed" ${task.status === "Completed" ? "selected" : ""}>Completed</option>
+				</select>
+				<select id="person-${task.id}" onchange="updateAssignedPerson('${task.id}', this.value)">
+					<option value="" disabled selected>Assigned to</option>
+					<option value="Jabez" ${task.person === "Jabez" ? "selected" : ""}>Jabez</option>
+					<option value="Raghul" ${task.person === "Raghul" ? "selected" : ""}>Raghul</option>
+					<option value="Raj kumar" ${task.person === "Raj kumar" ? "selected" : ""}>Raj kumar</option>
+					<option value="Bettina" ${task.person === "Bettina" ? "selected" : ""}>Bettina</option>
+					<option value="Saswatha" ${task.person === "Saswatha" ? "selected" : ""}>Saswatha</option>
+					<option value="Robin" ${task.person === "Robin" ? "selected" : ""}>Robin</option>
+					<option value="Mariya" ${task.person === "Mariya" ? "selected" : ""}>Mariya</option>
+				</select>
+				<button onclick="editTask('${task.id}')">Edit</button>
+				<button onclick="deleteTask('${task.id}')">Delete</button>
+				<button onclick="addNote('${task.id}')">Add Note</button>
+				<button onclick="toggleNotes('${task.id}')">Show Notes</button>
+				<div id="notes-${task.id}" class="hidden"></div>
+			`;
+			taskList.appendChild(taskCard);
+			updateNotesDisplay(task.id, task.notes);
+		});
+	}
+
+
+
+async function updateAssignedPerson(taskId, newPerson) {
+    try {
+        console.log("Assigning task to:", newPerson);
+
+        // Update Firestore
+        await updateDoc(doc(db, "tasks", taskId), { person: newPerson });
+        console.log("✅ Firestore updated successfully!");
+
+        // Find the task details
+        let task = taskData.find(t => t.id === taskId);
+        if (!task) {
+            console.error("❌ Task not found!");
             return;
         }
 
-        let newTask = {
-            requester, emailId, taskName, description, poc, materials, country, deadline, person, request,
-            status: "Opened", notes: []
+        // Mapping person names to email IDs
+        let emailMap = {
+            "Jabez": "raghulkr1997@gmail.com",
+            "Raghul": "raghulkr1997@gmail.com",
+            "Raj kumar": "raghulkr1997@gmail.com",
+            "Bettina": "raghulkr1997@gmail.com",
+            "Saswatha": "raghulkr1997@gmail.com",
+            "Robin": "raghulkr1997@gmail.com",
+            "Mariya": "raghulkr1997@gmail.com"
         };
 
-        try {
-            await addDoc(collection(db, "tasks"), newTask);
-            sendEmail(newTask);
-        } catch (error) {
-            console.error("Error adding task:", error);
+        let assignedEmail = emailMap[newPerson];
+        if (!assignedEmail) {
+            console.error("❌ No email found for", newPerson);
+            return;
         }
-    }
 
-     function sendEmail(task) {
-    emailjs.send("service_1162qhl", "template_mgi90vp", {
-        task_name: task.taskName,
-        task_description: task.description,
-		task_request: task.request,
-        task_materials: task.materials,
-        task_country: task.country,
-        task_deadline: task.deadline,
-		task_poc: task.poc,
-		task_requester: task.requester,
-		task_emailId: task.emailId,
-		task_person: task.person,
-		
-    }).then(
-        function (response) {
-            console.log("Email sent successfully!", response);
-            alert("Task added and email notification sent!");
-        },
-        function (error) {
-            console.log("Email failed to send:", error);
-            alert("Task added, but email could not be sent.");
-        }
-    );
-}
+        console.log("📧 Sending email to:", assignedEmail);
 
-   function displayTasks(tasks) {
-    let taskList = document.getElementById("taskList");
-    taskList.innerHTML = "";
-    tasks.forEach(task => {
-        let taskCard = document.createElement("div");
-        taskCard.className = "task-card";
-        taskCard.innerHTML = `
-            <strong>Task Name:</strong> ${task.taskName} | <strong>Assigned to:</strong> ${task.person} |
-            <strong>POC:</strong> ${task.poc} | 
-            <strong>Country:</strong> ${task.country}<br>
-            <strong>Request:</strong> ${task.request} |
-            <strong>Materials:</strong> ${task.materials} | 
-            <strong>Deadline:</strong> ${task.deadline} | 
-            <strong>Requester Name:</strong> ${task.requester}<br>
-            <strong>Description:</strong> ${task.description}<br>
-            <select onchange="updateStatus('${task.id}', this.value)">
-                <option value="Opened" ${task.status === "Opened" ? "selected" : ""}>Opened</option>
-                <option value="Working" ${task.status === "Working" ? "selected" : ""}>Working</option>
-                <option value="Hold" ${task.status === "Hold" ? "selected" : ""}>Hold</option>
-                <option value="Approval Pending" ${task.status === "Approval Pending" ? "selected" : ""}>Approval Pending</option>
-                <option value="Completed" ${task.status === "Completed" ? "selected" : ""}>Completed</option>
-            </select>
-            <button onclick="editTask('${task.id}')">Edit</button>
-            <button onclick="deleteTask('${task.id}')">Delete</button>
-            <button onclick="addNote('${task.id}')">Add Note</button>
-            <button onclick="toggleNotes('${task.id}')">Show Notes</button>
-            <div id="notes-${task.id}" class="hidden"></div>
-        `;
-        taskList.appendChild(taskCard);
-        updateNotesDisplay(task.id, task.notes);
-    });
-}
+        // Extract task details
+        const { task_name, task_description, task_deadline, task_poc, task_country, task_requester } = task;
 
-	async function editTask(taskId) {
-    let task = taskData.find(t => t.id === taskId);
-    if (!task) return;
+        // Call sendEmailToAssignee with correct parameters
+        await sendEmailToAssignee(
+            newPerson, 
+            assignedEmail, 
+            task_name, 
+            task_description, 
+            task_deadline, 
+            task_poc, 
+            task_country, 
+            task_requester
+        );
 
-    let newTaskName = prompt("Edit Task Name:", task.taskName);
-    let newDescription = prompt("Edit Description:", task.description);
-    let newPOC = prompt("Edit POC:", task.poc);
-    let newMaterials = prompt("Edit Materials:", task.materials);
-    let newCountry = prompt("Edit Country:", task.country);
-    let newDeadline = prompt("Edit Deadline:", task.deadline);
-    let newRequester = prompt("Edit Requester Name:", task.requester);
-    let newPerson = prompt("Edit Assigned Person:", task.person);
-    let newRequest = prompt("Edit Request:", task.request);
-
-    if (!newTaskName || !newDescription) {
-        alert("Task name and description are required!");
-        return;
-    }
-
-    try {
-        await updateDoc(doc(db, "tasks", taskId), {
-            taskName: newTaskName,
-            description: newDescription,
-            poc: newPOC,
-            materials: newMaterials,
-            country: newCountry,
-            deadline: newDeadline,
-            requester: newRequester,
-            person: newPerson,
-            request: newRequest
-        });
-        alert("Task updated successfully!");
+        alert(`✅ Task assigned to ${newPerson} and email sent!`);
     } catch (error) {
-        console.error("Error updating task:", error);
+        console.error("❌ Error updating assigned person:", error);
     }
 }
 
-
-    async function updateStatus(id, newStatus) {
-        await updateDoc(doc(db, "tasks", id), { status: newStatus });
-    }
-
-    async function deleteTask(taskId) {
-    if (confirm("Are you sure you want to delete this task?")) {
-        try {
-            await deleteDoc(doc(db, "tasks", taskId));
-            alert("Task deleted successfully!");
-        } catch (error) {
-            console.error("Error deleting task:", error);
-        }
-    }
-}
-
-    async function addNote(id) {
-    let noteName = prompt("Enter your name:");
-    if (!noteName) {
-        alert("Name is required!");
-        return;
-    }
-
-    let noteText = prompt("Enter note:");
-    if (!noteText) {
-        alert("Note cannot be empty!");
-        return;
-    }
-
-    let noteEntry = {
-        name: noteName,
-        text: noteText,
-        date: new Date().toLocaleString()
-    };
-
+async function sendEmailToAssignee(assigned_person, assigned_email, task_name, task_description, task_deadline, task_poc, task_country, task_requester) {
     try {
-        await updateDoc(doc(db, "tasks", id), {
-            notes: arrayUnion(noteEntry)
+        console.log("🚀 Sending email...");
+        console.log("📧 Email Params:", {
+            assigned_person, 
+            assigned_email, 
+            task_name, 
+            task_description, 
+            task_deadline, 
+            task_poc, 
+            task_country, 
+            task_requester
         });
-        alert("Note added successfully!");
+
+        const emailParams = {
+            assigned_person,
+            assigned_email,
+            task_name,
+            task_description,
+            task_deadline,
+            task_poc,
+            task_country,
+            task_requester
+        };
+
+        const response = await emailjs.send("service_1162qhl", "template_9w4xwnk", emailParams, "wKKO8C-VDRSJKZzOB");
+
+        console.log("✅ Email sent successfully! Response:", response);
     } catch (error) {
-        console.error("Error adding note:", error);
-    }
-}
-
-    function toggleNotes(id) {
-        document.getElementById("notes-" + id).classList.toggle("hidden");
-    }
-
-    function updateNotesDisplay(id, notes) {
-    let notesDiv = document.getElementById("notes-" + id);
-    if (notesDiv) {
-        notesDiv.innerHTML = notes
-            .map(n => `<p><strong>${n.name}</strong> (${n.date}): ${n.text}</p>`)
-            .join("");
+        console.error("❌ Email sending failed:", error);
     }
 }
 
 
-    function downloadExcel() {
-        let ws = XLSX.utils.json_to_sheet(taskData);
-        let wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Tasks");
-        XLSX.writeFile(wb, "Tasks.xlsx");
-    }
 
-    // ✅ Fixed filterTasks function
-    function filterTasks() {
-    let selectedCountry = document.getElementById("filterCountry").value;
-    let selectedStatus = document.getElementById("filterStatus").value;
-    let selectedPerson = document.getElementById("filterPerson").value;
 
-    let filtered = taskData.filter(task =>
-        (selectedCountry === "All" || task.country === selectedCountry) &&
-        (selectedStatus === "All" || task.status === selectedStatus) &&
-        (selectedPerson === "All" || task.person === selectedPerson)
-    );
+		async function editTask(taskId) {
+		let task = taskData.find(t => t.id === taskId);
+		if (!task) return;
 
-    displayTasks(filtered);
-}
+		let newTaskName = prompt("Edit Task Name:", task.taskName);
+		let newDescription = prompt("Edit Description:", task.description);
+		let newPOC = prompt("Edit POC:", task.poc);
+		let newMaterials = prompt("Edit Materials:", task.materials);
+		let newCountry = prompt("Edit Country:", task.country);
+		let newDeadline = prompt("Edit Deadline:", task.deadline);
+		let newRequester = prompt("Edit Requester Name:", task.requester);
+		let newPerson = prompt("Edit Assigned Person:", task.person);
+		let newRequest = prompt("Edit Request:", task.request);
 
-    // ✅ Exposing functions to window
-    window.addTask = addTask;
-    window.updateStatus = updateStatus;
-    window.deleteTask = deleteTask;
-    window.addNote = addNote;
-    window.toggleNotes = toggleNotes;
-    window.downloadExcel = downloadExcel;
-    window.filterTasks = filterTasks;
-	window.editTask = editTask;
-</script>
+		if (!newTaskName || !newDescription) {
+			alert("Task name and description are required!");
+			return;
+		}
+
+		try {
+			await updateDoc(doc(db, "tasks", taskId), {
+				taskName: newTaskName,
+				description: newDescription,
+				poc: newPOC,
+				materials: newMaterials,
+				country: newCountry,
+				deadline: newDeadline,
+				requester: newRequester,
+				person: newPerson,
+				request: newRequest
+			});
+			alert("Task updated successfully!");
+		} catch (error) {
+			console.error("Error updating task:", error);
+		}
+	}
+
+
+		async function updateStatus(id, newStatus) {
+			await updateDoc(doc(db, "tasks", id), { status: newStatus });
+		}
+
+		async function deleteTask(taskId) {
+		if (confirm("Are you sure you want to delete this task?")) {
+			try {
+				await deleteDoc(doc(db, "tasks", taskId));
+				alert("Task deleted successfully!");
+			} catch (error) {
+				console.error("Error deleting task:", error);
+			}
+		}
+	}
+
+		async function addNote(id) {
+		let noteName = prompt("Enter your name:");
+		if (!noteName) {
+			alert("Name is required!");
+			return;
+		}
+
+		let noteText = prompt("Enter note:");
+		if (!noteText) {
+			alert("Note cannot be empty!");
+			return;
+		}
+
+		let noteEntry = {
+			name: noteName,
+			text: noteText,
+			date: new Date().toLocaleString()
+		};
+
+		try {
+			await updateDoc(doc(db, "tasks", id), {
+				notes: arrayUnion(noteEntry)
+			});
+			alert("Note added successfully!");
+		} catch (error) {
+			console.error("Error adding note:", error);
+		}
+	}
+
+		function toggleNotes(id) {
+			document.getElementById("notes-" + id).classList.toggle("hidden");
+		}
+
+		function updateNotesDisplay(id, notes) {
+		let notesDiv = document.getElementById("notes-" + id);
+		if (notesDiv) {
+			notesDiv.innerHTML = notes
+				.map(n => `<p><strong>${n.name}</strong> (${n.date}): ${n.text}</p>`)
+				.join("");
+		}
+	}
+
+
+		function downloadExcel() {
+			let ws = XLSX.utils.json_to_sheet(taskData);
+			let wb = XLSX.utils.book_new();
+			XLSX.utils.book_append_sheet(wb, ws, "Tasks");
+			XLSX.writeFile(wb, "Tasks.xlsx");
+		}
+
+		// ✅ Fixed filterTasks function
+		function filterTasks() {
+		let selectedCountry = document.getElementById("filterCountry").value;
+		let selectedStatus = document.getElementById("filterStatus").value;
+		let selectedPerson = document.getElementById("filterPerson").value;
+
+		let filtered = taskData.filter(task =>
+			(selectedCountry === "All" || task.country === selectedCountry) &&
+			(selectedStatus === "All" || task.status === selectedStatus) &&
+			(selectedPerson === "All" || task.person === selectedPerson)
+		);
+
+		displayTasks(filtered);
+	}
+
+		// ✅ Exposing functions to window
+		window.addTask = addTask;
+		window.updateStatus = updateStatus;
+		window.deleteTask = deleteTask;
+		window.addNote = addNote;
+		window.toggleNotes = toggleNotes;
+		window.downloadExcel = downloadExcel;
+		window.filterTasks = filterTasks;
+		window.editTask = editTask;
+		window.updateAssignedPerson = async function(taskId, person) {
+		try {
+			await updateDoc(doc(db, "tasks", taskId), { person: person });
+			console.log(`Task ${taskId} assigned to ${person}`);
+		} catch (error) {
+			console.error("Error updating assigned person:", error);
+		}
+	};
+	</script>
 
 
 
